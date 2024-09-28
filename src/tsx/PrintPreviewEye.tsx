@@ -35,8 +35,8 @@ export default function PrintPreviewEye(props: PrintPreviewEyeProps) {
 						<td className="text-end">{props.data!.tgtRx}</td>
 					</tr>
 					<tr>
-						<td>A-Constant{HtmlSettings.validationInfo.AConstant.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.AConstant.unitsAbbreviation})` : ''}</td>
-						<td className="text-end">{props.data!.aConstant}</td>
+						<td>Surgeon Factor{HtmlSettings.validationInfo.SurgeonFactor.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.SurgeonFactor.unitsAbbreviation})` : ''}</td>
+						<td className="text-end">{props.data!.surgeonFactor}</td>
 					</tr>
 					<tr>
 						<td>Axial Length{HtmlSettings.validationInfo.AL.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.AL.unitsAbbreviation})` : ''}</td>
@@ -50,12 +50,28 @@ export default function PrintPreviewEye(props: PrintPreviewEyeProps) {
 						<td>{props.useKs ? 'K2' : 'R2'}{props.useKs ? (HtmlSettings.validationInfo.K2.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.K2.unitsAbbreviation})` : '') : (rWarning(1).unitsAbbreviation ? ` (${rWarning(1).unitsAbbreviation})` : '')}</td>
 						<td className="text-end">{props.useKs ? props.data!.k2 : kToR(props.kIndex, props.data!.k2)}</td>
 					</tr>
+					<tr>
+						<td>Pre-LASIK Gl Rx Sphere: {HtmlSettings.validationInfo.PreLasikSphere.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.PreLasikSphere.unitsAbbreviation})` : ''}</td>
+						<td className="text-end">{`${props.data!.preLasikSphere == 0 ? '0.00' : `${props.data!.preLasikSphere > 0 ? '+' : '-'}${Math.abs(props.data!.preLasikSphere).toFixed(2)}`}`}</td>
+					</tr>
+					<tr>
+						<td>Pre-LASIK Gl Rx Cyl: {HtmlSettings.validationInfo.PreLasikCyl.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.PreLasikCyl.unitsAbbreviation})` : ''}</td>
+						<td className="text-end">{`${props.data!.preLasikCyl == 0 ? '0.00' : `${props.data!.preLasikCyl > 0 ? '+' : '-'}${Math.abs(props.data!.preLasikCyl).toFixed(2)}`}`}</td>
+					</tr>
+					<tr>
+						<td>Post-LASIK Gl Rx Sphere: {HtmlSettings.validationInfo.PostLasikSphere.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.PostLasikSphere.unitsAbbreviation})` : ''}</td>
+						<td className="text-end">{`${props.data!.postLasikSphere == 0 ? '0.00' : `${props.data!.postLasikSphere > 0 ? '+' : '-'}${Math.abs(props.data!.postLasikSphere).toFixed(2)}`}`}</td>
+					</tr>
+					<tr>
+						<td>Post-LASIK Gl Rx Cyl: {HtmlSettings.validationInfo.PostLasikCyl.unitsAbbreviation ? ` (${HtmlSettings.validationInfo.PostLasikCyl.unitsAbbreviation})` : ''}</td>
+						<td className="text-end">{`${props.data!.postLasikCyl == 0 ? '0.00' : `${props.data!.postLasikCyl > 0 ? '+' : '-'}${Math.abs(props.data!.postLasikCyl).toFixed(2)}`}`}</td>
+					</tr>
 				</tbody>
 			</table>
 			<table className="mt-3 mx-auto predictions">
 				<tbody>
 					<tr>
-						<td className="text-primary" colSpan={3}>{props.data!.iol.name}</td>
+						<td className="text-primary" colSpan={3}>Surgeon Factor = {props.data!.surgeonFactor}</td>
 					</tr>
 					{(props.isQuerying ? <tr>
 						<td colSpan={3}>

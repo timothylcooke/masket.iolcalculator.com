@@ -13,21 +13,26 @@ export type LensConstant = {
 };
 
 // You can delete variable names that aren't used, but you'll also have to delete them in HtmlSettings' VariableDescriptions.
-export const PreopVariableNames = ['AL', 'K1', 'K2', 'ACD', 'CCT', 'LT', 'WTW', 'CD'] as const;
+export const PreopVariableNames = ['AL', 'K1', 'K2', 'PreLasikSphere', 'PreLasikCyl', 'PostLasikSphere', 'PostLasikCyl'] as const;
 export type PreopVariableName = typeof PreopVariableNames[number];
 
-// TODO: Specify your lens constant(s). All constants are considered required.
+// All constants are considered required.
 // Each constant must be defined in Settings.iolConstants with a min and max value.
-export const IolConstantNames = ['AConstant'] as const;
+export const IolConstantNames = ['SurgeonFactor'] as const;
 export type IolConstantName = typeof IolConstantNames[number];
 
 export type IolConstantValues = {
 	[key in IolConstantName]: number
 };
 
+const minSphere = -30;
+const maxSphere = +30;
+const minCyl = -30;
+const maxCyl = +30;
+
 const Settings = {
-	formulaName: 'T2',
-	apiUrl: '/api/v1/t2', // This should not end with a trailing slash.
+	formulaName: 'Masket',
+	apiUrl: '/api/v1/masket/holladay-1', // This should not end with a trailing slash.
 
 	// We convert Ks specified by the user to Ks with this keratometric refractive index.
 	// For the T2 formula, Ks are considered 333/measured anterior corneal radius
@@ -39,10 +44,10 @@ const Settings = {
 	// If you change which IOL constants are used, you must update the tsx/ApiPage/LensConstants.tsx file.
 	iolConstants: {
 		// The display name of the IOL constant whose value we change in order to optimize the constant(s)
-		constantToOptimizeDisplayName: 'A-Constant',
+		constantToOptimizeDisplayName: 'Surgeon Factor',
 
 		// The variable name of the IOL constant whose value we change in order to optimize the constant(s)
-		constantToOptimizeVariableName: 'AConstant',
+		constantToOptimizeVariableName: 'SurgeonFactor',
 
 		// Each lens constant must specify each of the following:
 		// - variableName: The name of the lens constant as specified in the API
@@ -50,9 +55,9 @@ const Settings = {
 		// - max: The maximum value allowed
 		// - roundedToSigFigs: When we optimize the lens constant, how many significant figures we should round the lens constant to.
 		//                     You can safely omit roundedToSigFigs if we don't change that lens constant when optimizing IOL constant(s).
-		AConstant: {
-			min: 101,
-			max: 129,
+		SurgeonFactor: {
+			min: -5,
+			max: 8,
 			roundedToSigFigs: 5
 		}
 	} as {
@@ -79,6 +84,11 @@ const Settings = {
 	kIndex: {
 		min: 1,
 		max: 2
+	},
+
+	v: {
+		min: 10,
+		max: 20
 	},
 
 	iolPower: {
@@ -133,41 +143,34 @@ const Settings = {
 			fullName: 'Axial Length'
 		},
 
-		/*
-		TODO:
-			The T2 formula does not use any additional variables.
-			Uncomment any extra variables you need in your formula.
-		*/
-		// ACD: {
-		// 	min: 1.1,
-		// 	max: 5.9,
-		// 	usage: 'Recommended',
-		// 	fullName: 'Anterior Chamber Depth'
-		// },
+		PreLasikSphere: {
+			min: minSphere,
+			max: maxSphere,
+			usage: 'Required',
+			fullName: 'Pre-LASIK Glasses Refraction Sphere'
+		},
 
-		// CCT: {
-		// 	min: 310,
-		// 	max: 800,
-		// 	usage: 'Recommended',
-		// 	fullName: 'Central Corneal Thickness'
-		// },
+		PreLasikCyl: {
+			min: minCyl,
+			max: maxCyl,
+			usage: 'Required',
+			fullName: 'Pre-LASIK Glasses Refraction Cylinder'
+		},
 
-		// LT: {
-		// 	min: 2.52,
-		// 	max: 6.47,
-		// 	usage: 'Recommended',
-		// 	usageAsterisk: 'LT is required for the Argos biometer, or to calculate lens powers greater than +40 Diopters',
-		// 	fullName: 'Lens Thickness'
-		// },
+		PostLasikSphere: {
+			min: minSphere,
+			max: maxSphere,
+			usage: 'Required',
+			fullName: 'Post-LASIK, Pre-Cataract Glasses Refraction Sphere'
+		},
 
-		// // You can safely rename "WTW" to "CD"
-		// WTW: {
-		// 	min: 9.81,
-		// 	max: 13.5,
-		// 	usage: 'Optional',
-		// 	usageAsterisk: 'WTW is required to calculate lens powers greater than +40 Diopters',
-		// 	fullName: 'Horizontal Corneal Diamter'
-		// },
+		PostLasikCyl: {
+			min: minCyl,
+			max: maxCyl,
+			usage: 'Required',
+			fullName: 'Post-LASIK, Pre-Cataract Glasses Refraction Cylinder'
+		},
+
 	} as { [key in PreopVariableName]: Variable | undefined }
 };
 

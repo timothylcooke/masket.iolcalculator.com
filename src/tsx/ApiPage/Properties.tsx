@@ -65,7 +65,7 @@ export default function Properties(props: PageProps) {
 	return (
 		<>
 			<h1 className="display-4">Properties</h1>
-			<p className="lead">There are {props.page === 'preop' ? 'four' : 'five required'} properties to the {HtmlSettings.formulaName} {props.page} API:</p>
+			<p className="lead">There are {props.page === 'preop' ? 'five' : 'five required'} properties to the {HtmlSettings.formulaName} {props.page} API:</p>
 			<table className="table">
 				<thead>
 					<tr>
@@ -82,6 +82,13 @@ export default function Properties(props: PageProps) {
 							<p>The Keratometric Index, sometimes referred to as the &quot;Javal Index&quot; is the &quot;fictitious&quot; refractive index of the cornea, for the purposes of converting the corneal radius (measured in millimeters) to a corneal refractive power (measured in Diopters).</p>
 							<p>The number specified here should be the same as that specified in the settings of your keratometer.<br /></p>
 							{props.page === 'postop' ? <p><strong>Important:</strong> All eyes should specify Ks measured with the same keratometric index.</p> : undefined}
+						</td>
+					</tr>
+					<tr>
+						<td><abbr title="Vertex Distance"><code>V</code></abbr></td>
+						<td>Required</td>
+						<td>
+							<p>The vertex distance, or the distance between the anterior cornea and the spectacle, measured im millimeters. Often assumed to be between 12 and 14 millimeters, this value must be between {Settings.v.min} and {Settings.v.max} millimeters.</p>
 						</td>
 					</tr>
 					{otherProperties}

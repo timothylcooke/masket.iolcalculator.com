@@ -1,5 +1,5 @@
 import { BaseProps } from './BaseProps';
-import { IolPowers, PreopApiError, PreopApiIols } from '../api/IolFormula/ApiTypes';
+import { PreopApiError, PreopApiIols } from '../api/IolFormula/ApiTypes';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { useState, useRef, useEffect, SyntheticEvent } from 'react';
 import { Button, FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
@@ -7,20 +7,18 @@ import HtmlSettings from './HtmlSettings';
 import EyeCard, { EyeCardHandle } from './EyeCard';
 import { useNavigate } from 'react-router-dom';
 import replaceBrowserHistory from './replaceBrowserHistory';
-
-export type SelectableIol = {
-	name: string,
-	aConstant: number | null,
-	powers?: Array<IolPowers>
-}
+import Settings from '../api/Settings';
 
 export type EyeHistoryState = {
 	tgtRx: number,
-	iol: SelectableIol,
-	aConstant: number,
+	surgeonFactor: number,
+	preLasikSphere: number,
+	preLasikCyl: number,
+	postLasikSphere: number,
+	postLasikCyl: number
 	k1: number,
 	k2: number,
-	al: number
+	al: number,
 }
 
 export type HistoryState = {
@@ -29,6 +27,7 @@ export type HistoryState = {
 	dob: string,
 	surgeon: string,
 	kIndex: number,
+	v: number,
 	useKs: boolean,
 	od: EyeHistoryState,
 	os: EyeHistoryState,
@@ -54,9 +53,11 @@ export default function HomePage(props: BaseProps) {
 	const [dob, setDOB] = useState(historyState?.dob ?? '');
 	const [surgeon, setSurgeon] = useState(historyState?.surgeon ?? '');
 	const [kIndex, setKIndex] = useState(historyState?.kIndex ?? HtmlSettings.kIndex.default);
+	const [v, setV] = useState(historyState?.v ?? HtmlSettings.v.default);
 	const [useKs, setUseKs] = useState(historyState?.useKs ?? HtmlSettings.useKsByDefault);
 	const [lastNameError, setLastNameError] = useState(undefined as string | undefined);
 	const [kIndexError, setKIndexError] = useState(undefined as string | undefined);
+	const [vError, setVError] = useState(undefined as string | undefined);
 	const [showOneEyeRequired, setShowOneEyeRequired] = useState(false);
 	const od = useRef<EyeCardHandle>(null);
 	const os = useRef<EyeCardHandle>(null);
@@ -85,6 +86,16 @@ export default function HomePage(props: BaseProps) {
 		return error;
 	};
 
+	const validateV = (newValue?: number) => {
+		if (newValue !== undefined) {
+			setV(newValue);
+		}
+		newValue ??= v;
+		const error = newValue ? (newValue < Settings.v.min || newValue > Settings.v.max ? `Vertex Distance must be between ${Settings.v.min} and ${Settings.v.max}` : undefined) : 'Vertex Distance is required';
+		setVError(error);
+		return error;
+	};
+
 	const navigate = useNavigate();
 
 	const onContinue = (e: SyntheticEvent<EventTarget>) => {
@@ -96,6 +107,7 @@ export default function HomePage(props: BaseProps) {
 		const errorElements = [
 			validateLastName() ? 'last-name' : undefined,
 			validateKIndex() ? 'k-index' : undefined,
+			validateV() ? 'v' : undefined,
 			odValidation,
 			osValidation,
 		];
@@ -119,6 +131,7 @@ export default function HomePage(props: BaseProps) {
 			dob,
 			surgeon,
 			kIndex,
+			v,
 			useKs,
 			od: odValidation as EyeHistoryState,
 			os: osValidation as EyeHistoryState,
@@ -151,7 +164,7 @@ export default function HomePage(props: BaseProps) {
 				<p className="lead">This is an example website and API page showcasing how to set up a website with a functional IOL calculator API.</p>
 			</div>
 			<div className="row">
-				<p>This site has a working implementation of an IOL calculator and API a for the T2 formula. <a href="https://github.com/timothylcooke/iolcalculator.com">All of the code for this website can be found on GitHub.</a></p>
+				<p>This site has a working implementation of an IOL calculator and API a for the Masket Holladay 1 formula. <a href="https://github.com/timothylcooke/masket.iolcalculator.com">All of the code for this website can be found on GitHub.</a></p>
 			</div>
 			<div className="row justify-content-center mt-4">
 				<div className="col">
@@ -188,6 +201,17 @@ export default function HomePage(props: BaseProps) {
 										<FormHelperText error={kIndexError !== undefined}>{kIndexError}</FormHelperText>
 									</FormControl>
 								</div>
+								<div className="col-sm pt-4">
+									<FormControl fullWidth>
+										<InputLabel id="v-label" error={kIndexError !== undefined}>Vertex Distance</InputLabel>
+										<Select id="v" labelId='v-label' value={v} onChange={e => validateV(e.target.value as number)} label="Vertex Distance" error={vError !== undefined} onBlur={() => validateV()}>
+											{HtmlSettings.v.options.map(x => <MenuItem key={x} value={x}>{x}</MenuItem>)}
+										</Select>
+										<FormHelperText error={vError !== undefined}>{vError}</FormHelperText>
+									</FormControl>
+								</div>
+							</div>
+							<div>
 								<div className="col-sm pt-4 text-center">
 									<FormControlLabel control={<Switch checked={useKs} onChange={e => setUseKs(e.target.checked)} />} label={useKs ? 'Use Ks' : 'Use Rs'}  />
 								</div>

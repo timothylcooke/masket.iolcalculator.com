@@ -20,16 +20,20 @@ export default function PrintPreview(props: BaseProps) {
 	const convertToApiInput: (state: HistoryState) => PreopApiInputs = state => {
 		return {
 			KIndex: state.kIndex,
+			V: state.v,
 			PredictionsPerIol: 7,
 			Eyes: [state.od, state.os].filter(x => x)
 				.map(x => ({
 					AL: x.al,
 					K1: x.k1,
 					K2: x.k2,
+					PreLasikSphere: x.preLasikSphere,
+					PreLasikCyl: x.preLasikCyl,
+					PostLasikSphere: x.postLasikSphere,
+					PostLasikCyl: x.postLasikCyl,
 					TgtRx: x.tgtRx,
 					IOLs: [{
-						AConstant: x.aConstant,
-						Powers: x.iol.powers
+						SurgeonFactor: x.surgeonFactor,
 					}]
 				}))
 		};
@@ -148,6 +152,10 @@ export default function PrintPreview(props: BaseProps) {
 							<tr>
 								<td>Keratometric Index</td>
 								<td className="text-end">{historyState.kIndex}</td>
+							</tr>
+							<tr>
+								<td>Vertex Distance</td>
+								<td className="text-end">{historyState.v}</td>
 							</tr>
 						</tbody>
 					</table>

@@ -30,7 +30,7 @@ export default function Response(props: PageProps) {
 				200 generally means you specified a valid request, however, you may still have some errors. A 200 response will return two properties:</p>
 			<ol>
 				<li>
-					<p><code>&quot;AConstant&quot;</code> will be the A-constant used for the request. If you specified an <code>Optimize</code> value of <code>false</code>, then this will simply be the <code>AConstant</code> value you specified in the request. However, if you specified an <code>Optimize</code> value of <code>true</code>, we will return the optimized A-constant.</p>
+					<p><code>&quot;SurgeonFactor&quot;</code> will be the Surgeon Factor used for the request. If you specified an <code>Optimize</code> value of <code>false</code>, then this will simply be the <code>SurgeonFactor</code> value you specified in the request. However, if you specified an <code>Optimize</code> value of <code>true</code>, we will return the optimized Surgeon Factor.</p>
 					<p>See <a href="#optimize">the documentation of the <code>Optimize</code> property</a> for details of how lens constant optimization is performed.</p>
 				</li>
 				<li>

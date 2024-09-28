@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import T2Formula from '../api/IolFormula/T2Formula';
+import MasketFormula from '../api/IolFormula/MasketFormula';
 
 const assertCloseEnough = (expected: number, actual: number, epsilon: number) => {
 	assert.ok(Math.abs(expected - actual) <= epsilon, `Values are not close enough: expected ${expected}, got ${actual}`);
@@ -20,16 +20,16 @@ const closeEnough = (expected: number | string, actual: number | string) => {
 test('Some random tests', t => {
 	// For each test, we paste the answer we expect to see (ideally from an externally-validated IOL calculator known to give valid predictions).
 	// The tests will ensure that this code gives the same answer as your saved tests.
-	closeEnough( -0.511022750699568, new T2Formula({ AL: 23.600300773978233, K1: 44.082986036548014, K2: 44.159396314530696 }, 1.3375).calculate({ AConstant: 119 }, 21.0));
-	closeEnough( -1.279688617802700, new T2Formula({ AL: 23.589400574564934, K1: 44.11776282715324 , K2: 44.38139930062693  }, 1.3375).calculate({ AConstant: 119 }, 22.0));
-	closeEnough( -0.792915256128844, new T2Formula({ AL: 23.930100724101067, K1: 41.21011413373744 , K2: 42.48884388734912  }, 1.3375).calculate({ AConstant: 119 }, 23.0));
-	closeEnough( -1.995579358078070, new T2Formula({ AL: 23.99853989481926 , K1: 41.64827560660122 , K2: 42.85517229555152  }, 1.3375).calculate({ AConstant: 119 }, 24.0));
-	closeEnough(-13.779916234154600, new T2Formula({ AL: 27.00739912688732 , K1: 45.95402887494731 , K2: 47.09208890744176  }, 1.3375).calculate({ AConstant: 119 }, 25.0));
-	closeEnough(-13.906311537386900, new T2Formula({ AL: 26.955800130963326, K1: 45.22839650482536 , K2: 46.57650834119935  }, 1.3375).calculate({ AConstant: 119 }, 26.0));
-	closeEnough( -4.686082281755990, new T2Formula({ AL: 24.7770007699728  , K1: 40.13689830901598 , K2: 41.11188063320193  }, 1.3375).calculate({ AConstant: 119 }, 27.0));
-	closeEnough( -5.749086433114900, new T2Formula({ AL: 24.760720506310463, K1: 40.2961224272421  , K2: 41.5951259787359   }, 1.3375).calculate({ AConstant: 119 }, 28.0));
-	closeEnough( -8.417171961387690, new T2Formula({ AL: 26.078380271792412, K1: 39.34842412695875 , K2: 39.985148251959664 }, 1.3375).calculate({ AConstant: 119 }, 29.0));
-	closeEnough( -8.619314073357990, new T2Formula({ AL: 25.680160149931908, K1: 39.58341042138732 , K2: 40.14249625867187  }, 1.3375).calculate({ AConstant: 119 }, 30.0));
-	closeEnough(-18.424773139286800, new T2Formula({ AL: 30.81749938428402 , K1: 42.46266293625579 , K2: 45.12782295103     }, 1.3375).calculate({ AConstant: 119 }, 24.5));
-	closeEnough( +3.346227815286070, new T2Formula({ AL: 20.291699096560478, K1: 43.765035968692324, K2: 44.46927085082063  }, 1.3375).calculate({ AConstant: 119 }, 27.5));
+	closeEnough( -1.8135309193724570, new MasketFormula({ AL: 23.600300773978233, K1: 44.082986036548014, K2: 44.159396314530696, PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 21.0));
+	closeEnough( -2.5792712767026895, new MasketFormula({ AL: 23.589400574564934, K1: 44.11776282715324 , K2: 44.38139930062693 , PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 22.0));
+	closeEnough( -2.0824230949620666, new MasketFormula({ AL: 23.930100724101067, K1: 41.21011413373744 , K2: 42.48884388734912 , PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 23.0));
+	closeEnough( -3.3011002695521334, new MasketFormula({ AL: 23.99853989481926 , K1: 41.64827560660122 , K2: 42.85517229555152 , PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 24.0));
+	closeEnough(-16.1725491927896600, new MasketFormula({ AL: 27.00739912688732 , K1: 45.95402887494731 , K2: 47.09208890744176 , PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 25.0));
+	closeEnough(-16.4422648928244330, new MasketFormula({ AL: 26.955800130963326, K1: 45.22839650482536 , K2: 46.57650834119935 , PreLasikSphere: +4, PreLasikCyl: +2, PostLasikSphere: -4, PostLasikCyl: -2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 26.0));
+	closeEnough( -1.1635412413991604, new MasketFormula({ AL: 24.7770007699728  , K1: 40.13689830901598 , K2: 41.11188063320193 , PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 27.0));
+	closeEnough( -2.0934693164449880, new MasketFormula({ AL: 24.760720506310463, K1: 40.2961224272421  , K2: 41.5951259787359  , PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 28.0));
+	closeEnough( -4.9510711541361840, new MasketFormula({ AL: 26.078380271792412, K1: 39.34842412695875 , K2: 39.985148251959664, PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 29.0));
+	closeEnough( -4.8396211226622080, new MasketFormula({ AL: 25.680160149931908, K1: 39.58341042138732 , K2: 40.14249625867187 , PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 30.0));
+	closeEnough(-17.0994084047420100, new MasketFormula({ AL: 30.81749938428402 , K1: 42.46266293625579 , K2: 45.12782295103    , PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 24.5));
+	closeEnough( +6.5861895508605870, new MasketFormula({ AL: 20.291699096560478, K1: 43.765035968692324, K2: 44.46927085082063 , PreLasikSphere: -4, PreLasikCyl: -2, PostLasikSphere: +4, PostLasikCyl: +2 }, 1.3375, 12.5).calculate({ SurgeonFactor: 2.4 }, 27.5));
 });

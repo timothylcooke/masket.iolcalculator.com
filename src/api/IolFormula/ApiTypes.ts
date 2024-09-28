@@ -47,7 +47,8 @@ export type PostopEyeObject = EyeObject & {
 };
 
 export type BaseApiInputs = {
-	KIndex: number
+	KIndex: number,
+	V: number
 };
 
 export type PreopApiInputs = BaseApiInputs & {

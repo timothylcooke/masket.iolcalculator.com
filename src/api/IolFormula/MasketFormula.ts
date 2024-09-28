@@ -23,17 +23,18 @@ const enumeratePowers = (powers: Array<IolPowers> | undefined): Array<number> | 
 
 const allowedPostopEyeProperties = Object.keys(Settings.variables).concat('IolPower', 'Ref');
 
-export default class T2Formula extends BaseFormula {
-	constructor(eye: EyeObject, kIndex: number) {
+export default class MasketFormula extends BaseFormula {
+	v: number;
+
+	constructor(eye: EyeObject, kIndex: number, v: number) {
 		super(eye, kIndex);
+		this.v = v;
 	}
 
 
 	calculate(iolConstants: IolConstantValues, iolPower: number): string | number {
-		// TODO: This is the guts of the formula.
+		// This is the guts of the formula.
 		// Change it as necessary to output the value requested by the user.
-		// You can safely return a string (an error that will be shown to the user telling them what is wrong with their inputs)
-		// Or you can return a number
 
 		// Basic validation has already been performed.
 		// All IOL constants and all eye variables are verified to be within appropriate limits.
@@ -46,18 +47,30 @@ export default class T2Formula extends BaseFormula {
 			return 'CCT is required if AL is greater than 40 mm';
 		}
 		*/
+		const vertex = this.v;
+
+		const preSphereAtCornea = 1000 * this.variables.PreLasikSphere! / (1000 - this.variables.PreLasikSphere! * vertex);
+		const preCylAtCornea = 1000000 * this.variables.PreLasikCyl! / ((1000 - this.variables.PreLasikSphere! * vertex) * (1000 - this.variables.PreLasikSphere! * vertex - this.variables.PreLasikCyl! * vertex))
+		const preSeAtCornea = preSphereAtCornea + preCylAtCornea / 2;
+
+		const postSphereAtCornea = 1000 * this.variables.PostLasikSphere! / (1000 - this.variables.PostLasikSphere! * vertex);
+		const postCylAtCornea = 1000000 * this.variables.PostLasikCyl! / ((1000 - this.variables.PostLasikSphere! * vertex) * (1000 - this.variables.PostLasikSphere! * vertex - this.variables.PostLasikCyl! * vertex))
+		const postSeAtCornea = postSphereAtCornea + postCylAtCornea / 2;
+
+		const refChangeAtCornealPlane = preSeAtCornea - postSeAtCornea;
 
 		// Keratometry values are already converted to 1.3375 keratometric index (since Settings.convertKIndex = 1.3375)
-		// The T2 formula is a general vergence formula.
+		// The Masket formula is a tweaked version of Holladay 1, which is itself a general vergence formula.
 		// There are basically just three variables: K0, TCP, and ELP
 		const aveK = (this.variables.K1! + this.variables.K2!) / 2;
-		const k0 = 333 / 337.5 * aveK;
-		const elp = -10.32566272 + 0.326300537 * this.variables.AL! + 0.135332269 * aveK + 0.62467 * iolConstants.AConstant - 68.747 - 3.336;
-		const al = 0.97971 * this.variables.AL! + 0.65696;
+		const k0 = 1000 / 1012.5 * aveK; // (1000/3) / 337.5 * aveK
+		const al = this.variables.AL! + 0.2;
 
-		const vertex = 12;
+		const rag = Math.max(7, 337.5 / aveK);
+		const ag = Math.min(13.5, 12.5 * this.variables.AL! / 23.45);
+		const elp = 0.56 + rag - Math.sqrt(rag*rag - ag*ag/4) + iolConstants.SurgeonFactor;
 
-		return 1000 / (1000 / (1336 / (1336 / (1336 / (al - elp) - iolPower) + elp) - k0) + vertex);
+		return 1000*((326*refChangeAtCornealPlane-101)*elp*elp*k0-1336*(326*refChangeAtCornealPlane-101)*elp-(((326*refChangeAtCornealPlane-101)*elp-1336000)*k0-435536*refChangeAtCornealPlane+134936)*al+1000*(elp*elp*k0-(elp*k0-1336)*al-1336*elp)*iolPower-1784896000)/((326*vertex*refChangeAtCornealPlane-101*vertex)*elp*elp*k0-1000*(326*refChangeAtCornealPlane-101)*elp*elp-1336*(326*vertex*refChangeAtCornealPlane-101*vertex)*elp+(435536*vertex*refChangeAtCornealPlane+1000*(326*refChangeAtCornealPlane-101)*elp-((326*vertex*refChangeAtCornealPlane-101*vertex)*elp-1336000*vertex)*k0-134936*vertex-1336000000)*al+1000*(vertex*elp*elp*k0-1336*vertex*elp-1000*elp*elp-(vertex*elp*k0-1336*vertex-1000*elp)*al)*iolPower-1784896000*vertex);
 	}
 
 
@@ -68,16 +81,16 @@ export default class T2Formula extends BaseFormula {
 			// or any variable names explicitly referenced in Settings.variables
 			.concat(PreopVariableNames.filter(x => Settings.variables[x]));
 
-	static calculatePreOp(kIndex: number, predictionsPerIol: number, iols: IolObject[] | undefined, eye: PreopEyeObject): PreopApiError | PreopApiIols {
+	static calculatePreOp(kIndex: number, v: number, predictionsPerIol: number, iols: IolObject[] | undefined, eye: PreopEyeObject): PreopApiError | PreopApiIols {
 		// Let's start by making sure the values of the eye are all acceptable.
-		const invalidProp = Object.keys(eye).find(x => T2Formula.allValidPreopVariables.indexOf(x) < 0);
+		const invalidProp = Object.keys(eye).find(x => MasketFormula.allValidPreopVariables.indexOf(x) < 0);
 		if (invalidProp) {
 			return {
 				Error: `Invalid property: "${invalidProp}"`
 			};
 		}
 
-		const formula = new T2Formula(eye, kIndex);
+		const formula = new MasketFormula(eye, kIndex, v);
 
 		if (formula.error || typeof eye.TgtRx !== 'number' || isNaN(eye.TgtRx) || eye.TgtRx < Settings.tgtRx.min || eye.TgtRx > Settings.tgtRx.max) {
 			return {
@@ -203,7 +216,7 @@ export default class T2Formula extends BaseFormula {
 				return 'Ref is required for every eye because Optimize is true.';
 			}
 
-			const allEyes = inputs.Eyes.map(eye => T2Formula.getPostopFormula(inputs.KIndex, eye, false));
+			const allEyes = inputs.Eyes.map(eye => MasketFormula.getPostopFormula(inputs.KIndex, inputs.V, eye, false));
 
 			const guesses = (allEyes.filter(x => typeof x !== 'string') as Array<PostopFormula>)
 				.map(x => ({ gatinelFkp: x.gatinelFkp, ref: x.ref!, calculate: x.calculate, guess: x.calculate(answer) as number }))
@@ -227,8 +240,8 @@ export default class T2Formula extends BaseFormula {
 				currentGuess.numIterations++;
 				const deltaElp = currentGuess.totalError / currentGuess.totalFkp;
 
-				// TODO: If your main lens constant is not an A-constant, you'll have to modify this equation.
-				currentGuess.constants[variableToAlter] = ((currentGuess.constants[variableToAlter] * 0.62467 - 68.747 - deltaElp) + 68.747) / 0.62467;
+				// delta SF = delta ELP
+				currentGuess.constants[variableToAlter] = currentGuess.constants[variableToAlter] - deltaElp;
 				currentGuess.totalError = guesses.reduce((a, b) => a + (x => typeof x === 'number' ? x - b.ref : 0)(b.calculate(currentGuess.constants)), 0);
 			}
 
@@ -236,13 +249,13 @@ export default class T2Formula extends BaseFormula {
 			answer[variableToAlter] = Math.round(currentGuess.constants[variableToAlter] * roundTo) / roundTo;
 		}
 
-		answer.Predictions = inputs.Eyes.map(eye => T2Formula.calculatePostop(answer, inputs.KIndex, eye))
+		answer.Predictions = inputs.Eyes.map(eye => MasketFormula.calculatePostop(answer, inputs.KIndex, inputs.V, eye))
 
 		return answer;
 	}
 
-	static calculatePostop(constants: IolConstantValues, kIndex: number, eye: PostopEyeObject): string | number {
-		const formula = T2Formula.getPostopFormula(kIndex, eye, true);
+	static calculatePostop(constants: IolConstantValues, kIndex: number, v: number, eye: PostopEyeObject): string | number {
+		const formula = MasketFormula.getPostopFormula(kIndex, v, eye, true);
 
 		if (typeof formula === 'string') {
 			return formula;
@@ -251,14 +264,14 @@ export default class T2Formula extends BaseFormula {
 		return formula.calculate(constants);
 	};
 
-	static getPostopFormula(kIndex: number, eye: PostopEyeObject, round: boolean): string | PostopFormula {
+	static getPostopFormula(kIndex: number, v: number, eye: PostopEyeObject, round: boolean): string | PostopFormula {
 		const invalidProp = Object.keys(eye).find(x => allowedPostopEyeProperties.indexOf(x) < 0);
 
 		if (invalidProp) {
 			return `Invalid property: "${invalidProp}"`;
 		}
 
-		const formula = new T2Formula(eye, kIndex);
+		const formula = new MasketFormula(eye, kIndex, v);
 		const error = formula.error || (typeof eye.IolPower !== 'number' || isNaN(eye.IolPower) || eye.IolPower < Settings.iolPower.min || eye.IolPower > Settings.iolPower.max ? `IolPower must be a number between ${Settings.iolPower.min} and ${Settings.iolPower.max}` : undefined);
 
 		if (error !== undefined) {

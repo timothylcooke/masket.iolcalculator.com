@@ -1,16 +1,14 @@
 import { PageProps } from './ApiPageProps';
 
 export default function Example(props: PageProps) {
-	// TODO: Here, we need to create example API requests and responses.
-	// If you need help generating example requests/responses, I'm happy to help.
 	const postop = {
-		request: '{"KIndex":1.3375,"AConstant":119,"Optimize":false,"Eyes":[{"AL":23.60,"K1":44.12,"K2":44.12,"IolPower":20},{"AL":20.29,"K1":44.12,"K2":44.12,"IolPower":20}]}',
-		response: '{"AConstant":119,"Predictions":[0.163,7.8633]}'
+		request: '{"KIndex":1.3375,"V":12,"SurgeonFactor":1.9,"Optimize":false,"Eyes":[{"AL":23.60,"K1":44.12,"K2":44.12,"IolPower":20,"PreLasikSphere":-6,"PreLasikCyl":2,"PostLasikSphere":-1,"PostLasikCyl":2},{"AL":20.29,"K1":44.12,"K2":44.12,"IolPower":30,"PreLasikSphere":-3,"PreLasikCyl":1,"PostLasikSphere":0,"PostLasikCyl":1}]}',
+		response: '{"SurgeonFactor":1.9,"Predictions":[1.3941,2.9502]}'
 	};
 
 	const preop = {
-		request: '{"KIndex":1.3375,"PredictionsPerIol":7,"IOLs":[{"AConstant":119,"Powers":[{"From":6,"To":30,"By":0.5}]}],"Eyes":[{"TgtRx":-1,"K1":40,"K2":42,"AL":24}]}',
-		response: '[{"IOLs":[{"Predictions":[{"IOL":22.5,"Rx":0.0899},{"IOL":23,"Rx":-0.2634},{"IOL":23.5,"Rx":-0.6208},{"IOL":24,"Rx":-0.9825,"IsBestOption":true},{"IOL":24.5,"Rx":-1.3486},{"IOL":25,"Rx":-1.7191},{"IOL":25.5,"Rx":-2.0942}]}]}]'
+		request: '{"KIndex":1.3375,"V":12,"PredictionsPerIol":7,"IOLs":[{"SurgeonFactor":1.8,"Powers":[{"From":6,"To":30,"By":0.5}]}],"Eyes":[{"TgtRx":-1,"K1":40,"K2":42,"AL":24,"PreLasikSphere":-6,"PreLasikCyl":2,"PostLasikSphere":-1,"PostLasikCyl":2}]}',
+		response: '[{"IOLs":[{"Predictions":[{"IOL":24.5,"Rx":-0.0481},{"IOL":25,"Rx":-0.3986},{"IOL":25.5,"Rx":-0.7533},{"IOL":26,"Rx":-1.1123,"IsBestOption":true},{"IOL":26.5,"Rx":-1.4756},{"IOL":27,"Rx":-1.8433},{"IOL":27.5,"Rx":-2.2155}]}]}]'
 	};
 
 	const { request, response } = (props.page === 'postop' ? postop : preop);
