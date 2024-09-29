@@ -35,7 +35,7 @@ const NumberTextBox = forwardRef<NumberTextBoxHandle, NumberTextBoxProps>(functi
 
 		const error = typeof props.value !== 'string' || props.value.trim() === '' ? (props.required === false ? undefined : `You must specify the ${props.displayName}`) :
 			isNaN(number) ? `The ${props.displayName} must be a number.` :
-				number < props.limits.min || number > props.limits.max ? `The ${props.displayName} must be between ${(props.limits.min == Math.round(props.limits.min) ? props.limits.min : Number(Math.ceil(props.limits.min * 100) / 100).toFixed(2))} and ${(props.limits.min < 0 && props.limits.max > 0 ? '+' : '')}${(props.limits.max == Math.round(props.limits.max) ? props.limits.max : Number(Math.floor(props.limits.max * 100) / 100).toFixed(2))}${(props.validationInfo.units === null ? '' : ` ${props.validationInfo.units}.`)}` :
+				number < props.limits.min || number > props.limits.max ? `The ${props.displayName} must be between ${(props.limits.min == Math.round(props.limits.min) ? props.limits.min : Number(Math.ceil(props.limits.min * 100) / 100).toFixed(2))} and ${(props.limits.min < 0 && props.limits.max > 0 ? '+' : '')}${(props.limits.max == Math.round(props.limits.max) ? props.limits.max : Number(Math.floor(props.limits.max * 100) / 100).toFixed(2))}${(props.validationInfo.units === undefined ? '' : ` ${props.validationInfo.units}.`)}` :
 					undefined;
 
 		const warn = typeof error === 'undefined' && !isNaN(number) ?
