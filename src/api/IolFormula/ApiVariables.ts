@@ -4,8 +4,8 @@ import statusCodeResponse from '../Helpers/statusCodeResponse';
 import Env from '../Helpers/Env';
 import { IolObject, IolPowers, PostopApiInputs, PreopApiInputs, PreopEyeObject } from './ApiTypes';
 
-export const PreopApiInputNames = arrayOfAll<keyof PreopApiInputs>()('KIndex', 'V', 'Eyes', 'PredictionsPerIol', 'IOLs'); // This won't compile if we miss every single property of PreopApiInputs.
-export const PostopApiInputNames = arrayOfAll<keyof PostopApiInputs>()('SurgeonFactor', 'Eyes', 'KIndex', 'V', 'Optimize'); // This won't compile if we miss every single property of PostopApiInputs.
+export const PreopApiInputNames = arrayOfAll<keyof PreopApiInputs>()('KIndex', 'V', 'UseModifiedMasket', 'Eyes', 'PredictionsPerIol', 'IOLs'); // This won't compile if we miss every single property of PreopApiInputs.
+export const PostopApiInputNames = arrayOfAll<keyof PostopApiInputs>()('SurgeonFactor', 'Eyes', 'KIndex', 'V', 'UseModifiedMasket', 'Optimize'); // This won't compile if we miss every single property of PostopApiInputs.
 export const IolPropertyNames = arrayOfAll<keyof IolObject>()('SurgeonFactor', 'Powers'); // This won't compile if we miss every single property of PostopApiInputs.
 export const IolPowerPropertyNames = arrayOfAll<keyof IolPowers>()('From', 'To', 'By'); // This won't compile if we miss every single property of PostopApiInputs.
 
@@ -43,6 +43,13 @@ async function validateKIndex(inputs: PreopApiInputs | PostopApiInputs, request:
 async function validateV(inputs: PreopApiInputs | PostopApiInputs, request: Request, env: Env): Promise<Response | undefined> {
 	if (typeof inputs.V !== 'number' || isNaN(inputs.V) || inputs.V < Settings.v.min || inputs.V > Settings.v.max) {
 		return await statusCodeResponse(request, env, 400, 'Bad Request', `Bad Request:\nRoot property "V" must be a number between ${Settings.v.min} and ${Settings.v.max}.`);
+	}
+	return undefined;
+}
+
+async function validateUseModifiedMasket(inputs: PreopApiInputs | PostopApiInputs, request: Request, env: Env): Promise<Response | undefined> {
+	if (typeof inputs.UseModifiedMasket !== 'boolean') {
+		return await statusCodeResponse(request, env, 400, 'Bad Request', `Bad Request:\nRoot property "UseModifiedMasket" is a required boolean.`);
 	}
 	return undefined;
 }
@@ -86,6 +93,7 @@ export async function validateInputs(inputs: PreopApiInputs | PostopApiInputs, i
 	return await ensureNoExtraProperties(inputs, isPreop, request, env) ||
 		await validateKIndex(inputs, request, env) ||
 		await validateV(inputs, request, env) ||
+		await validateUseModifiedMasket(inputs, request, env) ||
 		(isPreop && await validatePreopInputs(inputs as PreopApiInputs, request, env)) ||
 		(!isPreop && await validatePostopInputs(inputs as PostopApiInputs, request, env)) ||
 		await validateEyesIsProperlySizedArray(inputs, isPreop, request, env) ||

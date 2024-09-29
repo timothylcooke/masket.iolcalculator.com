@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BaseProps } from './BaseProps';
 import { HistoryState } from './HomePage';
-import HtmlSettings from './HtmlSettings';
 import PrintPreviewEye from './PrintPreviewEye';
 import { PreopApiError, PreopApiInputs, PreopApiOutput, PreopApiSuccess } from '../api/IolFormula/ApiTypes';
 import Settings from '../api/Settings';
@@ -21,6 +20,7 @@ export default function PrintPreview(props: BaseProps) {
 		return {
 			KIndex: state.kIndex,
 			V: state.v,
+			UseModifiedMasket: state.useModifiedMasket,
 			PredictionsPerIol: 7,
 			Eyes: [state.od, state.os].filter(x => x)
 				.map(x => ({
@@ -122,7 +122,7 @@ export default function PrintPreview(props: BaseProps) {
 			</div>
 			<div id="page-parent">
 				<div id="page">
-					<h1 className="text-center display-4">{HtmlSettings.formulaName} Formula</h1>
+					<h1 className="text-center display-4">{historyState.useModifiedMasket ? 'Modified ' : ''}Masket Formula</h1>
 					<table className="mx-auto patient">
 						<tbody>
 							<tr>

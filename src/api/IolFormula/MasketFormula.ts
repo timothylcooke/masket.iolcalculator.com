@@ -25,10 +25,12 @@ const allowedPostopEyeProperties = Object.keys(Settings.variables).concat('IolPo
 
 export default class MasketFormula extends BaseFormula {
 	v: number;
+	useModifiedMasket: boolean;
 
-	constructor(eye: EyeObject, kIndex: number, v: number) {
+	constructor(eye: EyeObject, kIndex: number, v: number, useModifiedMasket: boolean) {
 		super(eye, kIndex);
 		this.v = v;
+		this.useModifiedMasket = useModifiedMasket;
 	}
 
 
@@ -63,7 +65,7 @@ export default class MasketFormula extends BaseFormula {
 		const ag = Math.min(13.5, 12.5 * this.variables.AL! / 23.45);
 		const elp = 0.56 + rag - Math.sqrt(rag*rag - ag*ag/4) + iolConstants.SurgeonFactor;
 
-		const changedIolPower = iolPower + 0.326 * refChangeAtCornealPlane - 0.101;
+		const changedIolPower = iolPower + (this.useModifiedMasket ? 0.4385 * refChangeAtCornealPlane - 0.0295 : 0.326 * refChangeAtCornealPlane - 0.101);
 
 		return 1000 / (1000 / (1336 / (1336 / (1336 / (al - elp) - changedIolPower) + elp) - k0) + vertex);
 	}
@@ -76,7 +78,7 @@ export default class MasketFormula extends BaseFormula {
 			// or any variable names explicitly referenced in Settings.variables
 			.concat(PreopVariableNames.filter(x => Settings.variables[x]));
 
-	static calculatePreOp(kIndex: number, v: number, predictionsPerIol: number, iols: IolObject[] | undefined, eye: PreopEyeObject): PreopApiError | PreopApiIols {
+	static calculatePreOp(kIndex: number, v: number, useModifiedMasket: boolean, predictionsPerIol: number, iols: IolObject[] | undefined, eye: PreopEyeObject): PreopApiError | PreopApiIols {
 		// Let's start by making sure the values of the eye are all acceptable.
 		const invalidProp = Object.keys(eye).find(x => MasketFormula.allValidPreopVariables.indexOf(x) < 0);
 		if (invalidProp) {
@@ -85,7 +87,7 @@ export default class MasketFormula extends BaseFormula {
 			};
 		}
 
-		const formula = new MasketFormula(eye, kIndex, v);
+		const formula = new MasketFormula(eye, kIndex, v, useModifiedMasket);
 
 		if (formula.error || typeof eye.TgtRx !== 'number' || isNaN(eye.TgtRx) || eye.TgtRx < Settings.tgtRx.min || eye.TgtRx > Settings.tgtRx.max) {
 			return {
@@ -211,7 +213,7 @@ export default class MasketFormula extends BaseFormula {
 				return 'Ref is required for every eye because Optimize is true.';
 			}
 
-			const allEyes = inputs.Eyes.map(eye => MasketFormula.getPostopFormula(inputs.KIndex, inputs.V, eye, false));
+			const allEyes = inputs.Eyes.map(eye => MasketFormula.getPostopFormula(inputs.KIndex, inputs.V, inputs.UseModifiedMasket, eye, false));
 
 			const guesses = (allEyes.filter(x => typeof x !== 'string') as Array<PostopFormula>)
 				.map(x => ({ gatinelFkp: x.gatinelFkp, ref: x.ref!, calculate: x.calculate, guess: x.calculate(answer) as number }))
@@ -244,13 +246,13 @@ export default class MasketFormula extends BaseFormula {
 			answer[variableToAlter] = Math.round(currentGuess.constants[variableToAlter] * roundTo) / roundTo;
 		}
 
-		answer.Predictions = inputs.Eyes.map(eye => MasketFormula.calculatePostop(answer, inputs.KIndex, inputs.V, eye))
+		answer.Predictions = inputs.Eyes.map(eye => MasketFormula.calculatePostop(answer, inputs.KIndex, inputs.V, inputs.UseModifiedMasket, eye))
 
 		return answer;
 	}
 
-	static calculatePostop(constants: IolConstantValues, kIndex: number, v: number, eye: PostopEyeObject): string | number {
-		const formula = MasketFormula.getPostopFormula(kIndex, v, eye, true);
+	static calculatePostop(constants: IolConstantValues, kIndex: number, v: number, useModifiedMasket: boolean, eye: PostopEyeObject): string | number {
+		const formula = MasketFormula.getPostopFormula(kIndex, v, useModifiedMasket, eye, true);
 
 		if (typeof formula === 'string') {
 			return formula;
@@ -259,14 +261,14 @@ export default class MasketFormula extends BaseFormula {
 		return formula.calculate(constants);
 	};
 
-	static getPostopFormula(kIndex: number, v: number, eye: PostopEyeObject, round: boolean): string | PostopFormula {
+	static getPostopFormula(kIndex: number, v: number, useModifiedMasket: boolean, eye: PostopEyeObject, round: boolean): string | PostopFormula {
 		const invalidProp = Object.keys(eye).find(x => allowedPostopEyeProperties.indexOf(x) < 0);
 
 		if (invalidProp) {
 			return `Invalid property: "${invalidProp}"`;
 		}
 
-		const formula = new MasketFormula(eye, kIndex, v);
+		const formula = new MasketFormula(eye, kIndex, v, useModifiedMasket);
 		const error = formula.error || (typeof eye.IolPower !== 'number' || isNaN(eye.IolPower) || eye.IolPower < Settings.iolPower.min || eye.IolPower > Settings.iolPower.max ? `IolPower must be a number between ${Settings.iolPower.min} and ${Settings.iolPower.max}` : undefined);
 
 		if (error !== undefined) {

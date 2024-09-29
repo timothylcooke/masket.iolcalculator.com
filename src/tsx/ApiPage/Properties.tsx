@@ -65,7 +65,7 @@ export default function Properties(props: PageProps) {
 	return (
 		<>
 			<h1 className="display-4">Properties</h1>
-			<p className="lead">There are {props.page === 'preop' ? 'five' : 'five required'} properties to the {HtmlSettings.formulaName} {props.page} API:</p>
+			<p className="lead">There are {props.page === 'preop' ? 'six' : 'six required'} properties to the {HtmlSettings.formulaName} {props.page} API:</p>
 			<table className="table">
 				<thead>
 					<tr>
@@ -89,6 +89,16 @@ export default function Properties(props: PageProps) {
 						<td>Required</td>
 						<td>
 							<p>The vertex distance, or the distance between the anterior cornea and the spectacle, measured im millimeters. Often assumed to be between 12 and 14 millimeters, this value must be between {Settings.v.min} and {Settings.v.max} millimeters.</p>
+						</td>
+					</tr>
+					<tr>
+						<td><code>UseModifiedMasket</code></td>
+						<td>Required</td>
+						<td>
+							<p>
+								Specify <code>true</code> to use the <a href="https://doctor-hill.com/iol-power-calculations/post-keratorefractive-surgery/myopic-lasik-lasek-prk/modified-masket-method/" target="_blank" rel="noreferrer">Masket formula, as modified by Dr. Hill</a>.
+								Specify <code>false</code> to use the <a href="https://doctor-hill.com/iol-power-calculations/post-keratorefractive-surgery/myopic-lasik-lasek-prk/masket-method/" target="_blank" rel="noreferrer">Masket formula, as originally published in JCRS</a>.
+							</p>
 						</td>
 					</tr>
 					{otherProperties}

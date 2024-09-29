@@ -28,6 +28,7 @@ export type HistoryState = {
 	surgeon: string,
 	kIndex: number,
 	v: number,
+	useModifiedMasket: boolean,
 	useKs: boolean,
 	od: EyeHistoryState,
 	os: EyeHistoryState,
@@ -54,6 +55,7 @@ export default function HomePage(props: BaseProps) {
 	const [surgeon, setSurgeon] = useState(historyState?.surgeon ?? '');
 	const [kIndex, setKIndex] = useState(historyState?.kIndex ?? HtmlSettings.kIndex.default);
 	const [v, setV] = useState(historyState?.v ?? HtmlSettings.v.default);
+	const [useModifiedMasket, setUseModifiedMasket] = useState(historyState?.useModifiedMasket ?? true);
 	const [useKs, setUseKs] = useState(historyState?.useKs ?? HtmlSettings.useKsByDefault);
 	const [lastNameError, setLastNameError] = useState(undefined as string | undefined);
 	const [kIndexError, setKIndexError] = useState(undefined as string | undefined);
@@ -132,6 +134,7 @@ export default function HomePage(props: BaseProps) {
 			surgeon,
 			kIndex,
 			v,
+			useModifiedMasket,
 			useKs,
 			od: odValidation as EyeHistoryState,
 			os: osValidation as EyeHistoryState,
@@ -211,9 +214,12 @@ export default function HomePage(props: BaseProps) {
 									</FormControl>
 								</div>
 							</div>
-							<div>
+							<div className="row">
 								<div className="col-sm pt-4 text-center">
 									<FormControlLabel control={<Switch checked={useKs} onChange={e => setUseKs(e.target.checked)} />} label={useKs ? 'Use Ks' : 'Use Rs'}  />
+								</div>
+								<div className="col-sm pt-4 text-center">
+									<FormControlLabel control={<Switch checked={useModifiedMasket} onChange={e => setUseModifiedMasket(e.target.checked)} />} label={useModifiedMasket ? 'Use Modified Masket' : 'Use Original Masket'}  />
 								</div>
 							</div>
 						</div>
