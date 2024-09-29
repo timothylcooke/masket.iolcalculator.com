@@ -40,13 +40,6 @@ export default class MasketFormula extends BaseFormula {
 		// All IOL constants and all eye variables are verified to be within appropriate limits.
 		// All required variables are present.
 
-		// If you have a variable that is conditionally required and is absent, you can return a string error.
-		// For example, you can do something like this:
-		/*
-		if (this.variables.AL! > 40 && typeof this.variables.CCT !== 'number') {
-			return 'CCT is required if AL is greater than 40 mm';
-		}
-		*/
 		const vertex = this.v;
 
 		const preSphereAtCornea = 1000 * this.variables.PreLasikSphere! / (1000 - this.variables.PreLasikSphere! * vertex);
@@ -70,7 +63,9 @@ export default class MasketFormula extends BaseFormula {
 		const ag = Math.min(13.5, 12.5 * this.variables.AL! / 23.45);
 		const elp = 0.56 + rag - Math.sqrt(rag*rag - ag*ag/4) + iolConstants.SurgeonFactor;
 
-		return 1000*((326*refChangeAtCornealPlane-101)*elp*elp*k0-1336*(326*refChangeAtCornealPlane-101)*elp-(((326*refChangeAtCornealPlane-101)*elp-1336000)*k0-435536*refChangeAtCornealPlane+134936)*al+1000*(elp*elp*k0-(elp*k0-1336)*al-1336*elp)*iolPower-1784896000)/((326*vertex*refChangeAtCornealPlane-101*vertex)*elp*elp*k0-1000*(326*refChangeAtCornealPlane-101)*elp*elp-1336*(326*vertex*refChangeAtCornealPlane-101*vertex)*elp+(435536*vertex*refChangeAtCornealPlane+1000*(326*refChangeAtCornealPlane-101)*elp-((326*vertex*refChangeAtCornealPlane-101*vertex)*elp-1336000*vertex)*k0-134936*vertex-1336000000)*al+1000*(vertex*elp*elp*k0-1336*vertex*elp-1000*elp*elp-(vertex*elp*k0-1336*vertex-1000*elp)*al)*iolPower-1784896000*vertex);
+		const changedIolPower = iolPower + 0.326 * refChangeAtCornealPlane - 0.101;
+
+		return 1000 / (1000 / (1336 / (1336 / (1336 / (al - elp) - changedIolPower) + elp) - k0) + vertex);
 	}
 
 
