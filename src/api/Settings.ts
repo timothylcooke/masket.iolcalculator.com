@@ -123,15 +123,15 @@ const Settings = {
 
 	variables: {
 		K1: {
-			min: 32,
-			max: 57,
+			min: 30,
+			max: 60,
 			usage: 'Required',
 			fullName: 'K1'
 		},
 
 		K2: {
-			min: 32,
-			max: 57,
+			min: 30,
+			max: 60,
 			usage: 'Required',
 			fullName: 'K2'
 		},
