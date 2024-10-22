@@ -15,7 +15,7 @@ export default class ApiRoute {
 
 		// At this point, we know we have acceptable values for PredictionsPerIol, KIndex, and we know we have a valid number of Eyes and IOLs.
 		// That means we've got enough for a 200 response. If there are any problems with individual eyes or IOLs, we'll return errors on an individual basis.
-		return new Response(JSON.stringify((inputs.Eyes).map(eye => MasketFormula.calculatePreOp(inputs.KIndex, inputs.V, inputs.UseModifiedMasket, inputs.PredictionsPerIol, inputs.IOLs, eye))), { headers: { 'content-type': 'application/json' } });
+		return new Response(JSON.stringify((inputs.Eyes).map(eye => MasketFormula.calculatePreOp(inputs.KIndex, inputs.V, inputs.UseModifiedMasket, inputs.PredictionsPerIol, inputs.IOLs, eye))), { headers: { 'content-type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
 	}
 
 	static Postop = async function(inputs: PostopApiInputs, request: Request, env: Env): Promise<Response> {
@@ -31,6 +31,6 @@ export default class ApiRoute {
 			return await statusCodeResponse(request, env, 400, 'Bad Request', answer);
 		}
 
-		return new Response(JSON.stringify(answer), { headers: { 'content-type': 'application/json' } });
+		return new Response(JSON.stringify(answer), { headers: { 'content-type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
 	}
 };

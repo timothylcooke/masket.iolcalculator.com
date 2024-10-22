@@ -18,6 +18,19 @@ const resources: Array<Route> = [
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
+		if (!'OPTIONS'.localeCompare(request.method, undefined, { sensitivity: 'accent' })) {
+			const response: Response = await env.ASSETS.fetch(new Request(request.url, { cf: request.cf, headers: request.headers, method: request.method }));
+			const headers = new Headers(response.headers);
+			headers.append('Access-Control-Request-Method', 'GET,POST');
+			headers.append('Access-Control-Allow-Headers', '*');
+			return new Response(null, {
+				cf: response.cf,
+				headers: headers,
+				statusText: 'No Content',
+				status: 204
+			});
+		}
+
 		const url: URL = new URL(request.url);
 
 		const resource: Route | undefined = resources.find(x => x.matches(url.pathname));
